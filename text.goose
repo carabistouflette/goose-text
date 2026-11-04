@@ -41,8 +41,14 @@ fn validate_utf8(source: u8[:]) -> i64 {
         if source[at] < 0x80 {
             // Safe byte loads only: no alignment, word casts, padding or overreads.
             // Enter this scan only on ASCII; Unicode needs at most four loads.
-            while source.len - at >= 8 && (source[at] | source[at + 1] | source[at + 2] | source[at + 3] |
-                    source[at + 4] | source[at + 5] | source[at + 6] | source[at + 7]) < 0x80 { at += 8; }
+            var tail = source[at..];
+            while tail.len >= 8 {
+                let chunk = tail[..8];
+                if (chunk[0] | chunk[1] | chunk[2] | chunk[3] |
+                        chunk[4] | chunk[5] | chunk[6] | chunk[7]) >= 0x80 { break; }
+                tail = tail[8..];
+            }
+            at = source.len - tail.len;
             while at < source.len && source[at] < 0x80 { at++; }
             if at == source.len { break; }
         }
