@@ -2,10 +2,10 @@
 
 Strict, allocation-free UTF-8 validation and scalar decoding for the
 [Goose programming language](https://github.com/aardappel/goose).
-Pure Goose, Apache-2.0. Experimental interface; no release or public remote yet.
+Pure Goose, Apache-2.0. Experimental interface; no release yet.
 
 ```goose
-import text from "../goose-text";
+import text from "carabistouflette/goose-text@09d5f0c39e50d3270189bd0c6798cd10ab2f0c0d";
 import std;
 
 fn main() {
@@ -17,8 +17,9 @@ fn main() {
 }
 ```
 
-Declare the package in the application's root source. Use a local path until a
-reviewed public repository is available. The API lives in `namespace text`.
+Declare the package in the application’s root source. The example pins a
+reviewed source commit. A nearby checkout can use `import text from "../goose-text";`
+instead. The API lives in `namespace text`.
 
 ## API contract
 
@@ -61,6 +62,8 @@ are intended; this library supplies strict boundary checks.
 ## Development
 
 ```sh
+git clone https://github.com/carabistouflette/goose-text.git
+cd goose-text
 make setup
 make format check test
 make property security
@@ -82,8 +85,11 @@ valid samples, all Unicode scalars in one document, byte offsets, long inputs,
 and encode/decode round trips. ASan/UBSan instrument the generated native code. `make fuzz` runs a bounded
 Clang/libFuzzer campaign and first verifies that Goose assertion failures save
 the exact triggering input.
-These checks do not constitute a proof for all inputs. See [bench/README.md](bench/README.md)
-for reproducible benchmark scope. CI checks execution, never timing thresholds.
+These checks do not constitute a proof for all inputs.
+The fuzzer requires Clang with libFuzzer, ASan and UBSan. It uses a fixed seed,
+a 64 KiB generated-input cap, and run/time limits; logs and crash artifacts stay
+under `.build/fuzz/`. See [bench/README.md](bench/README.md)
+for reproducible benchmark scope and a recorded run with raw samples. CI checks execution, never timing thresholds.
 
 Tested locally on Linux x86-64 with the pinned compiler, GCC and Clang. The
 library has no OS calls or native kernel; other platforms are unverified.
