@@ -43,7 +43,10 @@ for data in cases:
     expected.append((error, len(decoded), sum(map(ord, decoded))))
 binary = str(Path(sys.argv[1]).resolve())
 result = subprocess.run([binary], input="".join("V\t" + data.hex() + "\n" for data in cases),
-                        text=True, capture_output=True, check=True, timeout=120)
+                        text=True, capture_output=True, check=False, timeout=120)
+if result.returncode:
+    sys.stderr.write(result.stderr[:4096])
+    result.check_returncode()
 lines = result.stdout.splitlines()
 assert len(lines) == len(cases), (len(lines), len(cases), result.stderr[:1000])
 for index, (line, want) in enumerate(zip(lines, expected)):

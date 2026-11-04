@@ -45,7 +45,10 @@ for data, at in queries:
     expected.append(result)
 payload = "".join(f"D\t{at}\t{data.hex()}\n" for data, at in queries)
 run = subprocess.run([str(Path(sys.argv[1]).resolve())], input=payload,
-                     text=True, capture_output=True, check=True, timeout=120)
+                     text=True, capture_output=True, check=False, timeout=120)
+if run.returncode:
+    sys.stderr.write(run.stderr[:4096])
+    run.check_returncode()
 lines = run.stdout.splitlines()
 assert len(lines) == len(queries), (len(lines), len(queries))
 for index, (line, want) in enumerate(zip(lines, expected)):
