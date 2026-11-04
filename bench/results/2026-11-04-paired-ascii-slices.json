@@ -1,0 +1,494 @@
+{
+  "baseline_measurement": {
+    "platform": "Linux-7.2.11-arch1-1-x86_64-with-glibc2.44",
+    "machine": "x86_64",
+    "cpu": "Intel(R) Core(TM) Ultra 7 258V",
+    "affinity_cpu": 0,
+    "iterations": 2000,
+    "warmup_processes": 1,
+    "compiler_revision": "eadca409f68210893f366e60d0c2f0dc29a339be",
+    "cc": "cc",
+    "cc_version": "cc (GCC) 16.2.1 20260810",
+    "flags": "goose build -O2",
+    "input_bytes": {
+      "ascii": 16384,
+      "mixed": 16384,
+      "emoji": 16384,
+      "ascii_spans": 65536,
+      "invalid_early": 16384,
+      "invalid_late": 16384
+    },
+    "binary_sha256": "9b17b14730405c4f518e83995021685f8284f859acabe0c84e2b119b8448130c",
+    "source_revision": "6f31dbc8a7d78f17994c3f586cfbbe053608fdc1",
+    "dirty": false,
+    "raw_ns": {
+      "ascii": [
+        12845225,
+        12601249,
+        12674197,
+        12234314,
+        12168109,
+        12381390,
+        12919819
+      ],
+      "mixed": [
+        52733499,
+        53005607,
+        52350169,
+        53639774,
+        52011876,
+        51529972,
+        51860319
+      ],
+      "emoji": [
+        38953231,
+        40514678,
+        38665054,
+        39157150,
+        39655858,
+        39594831,
+        38791947
+      ],
+      "ascii_spans": [
+        66764842,
+        67430545,
+        66289993,
+        66202941,
+        65225428,
+        66892527,
+        66894882
+      ],
+      "invalid_early": [
+        3832,
+        3953,
+        3590,
+        3610,
+        3602,
+        3837,
+        3553
+      ],
+      "invalid_late": [
+        12721518,
+        12605414,
+        12490560,
+        12282405,
+        12302675,
+        12273220,
+        12315291
+      ]
+    },
+    "median_ns_per_operation": {
+      "ascii": 6300.6245,
+      "mixed": 26175.0845,
+      "emoji": 19578.575,
+      "ascii_spans": 33382.421,
+      "invalid_early": 1.805,
+      "invalid_late": 6157.6455
+    },
+    "scope": "Warm process validation medians; no allocation in timed loops; not cold latency, allocation counts, or a universal ranking."
+  },
+  "cc_version": "gcc (GCC) 16.2.1 20260810",
+  "flags": "goose build -O2",
+  "platform": "Linux-7.2.11-arch1-1-x86_64-with-glibc2.44",
+  "affinity_cpu": 0,
+  "seed": 20261105,
+  "iterations": 3000,
+  "warmup_processes_per_binary": 1,
+  "pairs": [
+    {
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "ns": {
+        "candidate": {
+          "ascii": 8966192,
+          "mixed": 74844507,
+          "emoji": 59875029,
+          "ascii_spans": 45395519,
+          "invalid_early": 5260,
+          "invalid_late": 8476401
+        },
+        "baseline": {
+          "ascii": 18307356,
+          "mixed": 75957941,
+          "emoji": 57630169,
+          "ascii_spans": 96381044,
+          "invalid_early": 6622,
+          "invalid_late": 18523522
+        }
+      }
+    },
+    {
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "ns": {
+        "candidate": {
+          "ascii": 8928905,
+          "mixed": 71840024,
+          "emoji": 58339546,
+          "ascii_spans": 43177088,
+          "invalid_early": 5245,
+          "invalid_late": 8447123
+        },
+        "baseline": {
+          "ascii": 18025982,
+          "mixed": 73761397,
+          "emoji": 55364002,
+          "ascii_spans": 94573389,
+          "invalid_early": 5254,
+          "invalid_late": 17906785
+        }
+      }
+    },
+    {
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "ns": {
+        "candidate": {
+          "ascii": 8519736,
+          "mixed": 73605499,
+          "emoji": 56025943,
+          "ascii_spans": 43179238,
+          "invalid_early": 5295,
+          "invalid_late": 8693879
+        },
+        "baseline": {
+          "ascii": 17691089,
+          "mixed": 73818927,
+          "emoji": 55563534,
+          "ascii_spans": 93815656,
+          "invalid_early": 5258,
+          "invalid_late": 17648560
+        }
+      }
+    },
+    {
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "ns": {
+        "baseline": {
+          "ascii": 17604076,
+          "mixed": 74339848,
+          "emoji": 55293329,
+          "ascii_spans": 95043361,
+          "invalid_early": 5650,
+          "invalid_late": 17829593
+        },
+        "candidate": {
+          "ascii": 8664140,
+          "mixed": 71523080,
+          "emoji": 56233841,
+          "ascii_spans": 43336325,
+          "invalid_early": 5661,
+          "invalid_late": 8678698
+        }
+      }
+    },
+    {
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "ns": {
+        "candidate": {
+          "ascii": 8748680,
+          "mixed": 73688876,
+          "emoji": 55835462,
+          "ascii_spans": 43401964,
+          "invalid_early": 5274,
+          "invalid_late": 8668013
+        },
+        "baseline": {
+          "ascii": 17650966,
+          "mixed": 73302228,
+          "emoji": 55553637,
+          "ascii_spans": 94881704,
+          "invalid_early": 5260,
+          "invalid_late": 17789887
+        }
+      }
+    },
+    {
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "ns": {
+        "baseline": {
+          "ascii": 17620990,
+          "mixed": 73278954,
+          "emoji": 55135237,
+          "ascii_spans": 95595565,
+          "invalid_early": 5287,
+          "invalid_late": 17686346
+        },
+        "candidate": {
+          "ascii": 9022709,
+          "mixed": 71641930,
+          "emoji": 55991450,
+          "ascii_spans": 43382792,
+          "invalid_early": 5295,
+          "invalid_late": 8619799
+        }
+      }
+    },
+    {
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "ns": {
+        "baseline": {
+          "ascii": 17711365,
+          "mixed": 74602586,
+          "emoji": 57493859,
+          "ascii_spans": 97214082,
+          "invalid_early": 5339,
+          "invalid_late": 17913373
+        },
+        "candidate": {
+          "ascii": 8438977,
+          "mixed": 73255269,
+          "emoji": 56475941,
+          "ascii_spans": 43498062,
+          "invalid_early": 5296,
+          "invalid_late": 8722720
+        }
+      }
+    },
+    {
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "ns": {
+        "candidate": {
+          "ascii": 8830319,
+          "mixed": 74012959,
+          "emoji": 56209203,
+          "ascii_spans": 43340095,
+          "invalid_early": 5241,
+          "invalid_late": 8598666
+        },
+        "baseline": {
+          "ascii": 17627096,
+          "mixed": 76227447,
+          "emoji": 56227133,
+          "ascii_spans": 94914169,
+          "invalid_early": 5195,
+          "invalid_late": 17636048
+        }
+      }
+    },
+    {
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "ns": {
+        "baseline": {
+          "ascii": 17779127,
+          "mixed": 73719433,
+          "emoji": 56765818,
+          "ascii_spans": 95118020,
+          "invalid_early": 5310,
+          "invalid_late": 17666386
+        },
+        "candidate": {
+          "ascii": 8528909,
+          "mixed": 73450771,
+          "emoji": 55548740,
+          "ascii_spans": 43307936,
+          "invalid_early": 5556,
+          "invalid_late": 8874204
+        }
+      }
+    },
+    {
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "ns": {
+        "baseline": {
+          "ascii": 17789485,
+          "mixed": 74101783,
+          "emoji": 55331736,
+          "ascii_spans": 96860054,
+          "invalid_early": 5295,
+          "invalid_late": 18104695
+        },
+        "candidate": {
+          "ascii": 8694982,
+          "mixed": 72354654,
+          "emoji": 56529910,
+          "ascii_spans": 43212051,
+          "invalid_early": 5234,
+          "invalid_late": 8564379
+        }
+      }
+    },
+    {
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "ns": {
+        "candidate": {
+          "ascii": 8944275,
+          "mixed": 74094392,
+          "emoji": 56914594,
+          "ascii_spans": 44143440,
+          "invalid_early": 5207,
+          "invalid_late": 8720624
+        },
+        "baseline": {
+          "ascii": 18218150,
+          "mixed": 74819170,
+          "emoji": 55446499,
+          "ascii_spans": 94575756,
+          "invalid_early": 5322,
+          "invalid_late": 17572382
+        }
+      }
+    },
+    {
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "ns": {
+        "candidate": {
+          "ascii": 8489965,
+          "mixed": 73930254,
+          "emoji": 56241158,
+          "ascii_spans": 43206316,
+          "invalid_early": 5307,
+          "invalid_late": 8607016
+        },
+        "baseline": {
+          "ascii": 17819717,
+          "mixed": 74334111,
+          "emoji": 56837736,
+          "ascii_spans": 95767085,
+          "invalid_early": 5210,
+          "invalid_late": 18228467
+        }
+      }
+    },
+    {
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "ns": {
+        "candidate": {
+          "ascii": 8808169,
+          "mixed": 76435320,
+          "emoji": 58698113,
+          "ascii_spans": 45406405,
+          "invalid_early": 5246,
+          "invalid_late": 8444996
+        },
+        "baseline": {
+          "ascii": 18675052,
+          "mixed": 79145451,
+          "emoji": 56717444,
+          "ascii_spans": 94168118,
+          "invalid_early": 5243,
+          "invalid_late": 17613926
+        }
+      }
+    },
+    {
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "ns": {
+        "baseline": {
+          "ascii": 17993188,
+          "mixed": 74185105,
+          "emoji": 57396066,
+          "ascii_spans": 98358967,
+          "invalid_early": 5638,
+          "invalid_late": 18712601
+        },
+        "candidate": {
+          "ascii": 8891151,
+          "mixed": 74143672,
+          "emoji": 57300166,
+          "ascii_spans": 44857065,
+          "invalid_early": 5651,
+          "invalid_late": 8683399
+        }
+      }
+    },
+    {
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "ns": {
+        "baseline": {
+          "ascii": 18619117,
+          "mixed": 77377982,
+          "emoji": 57576302,
+          "ascii_spans": 98176040,
+          "invalid_early": 5265,
+          "invalid_late": 18702307
+        },
+        "candidate": {
+          "ascii": 8961561,
+          "mixed": 74668256,
+          "emoji": 58253118,
+          "ascii_spans": 43967096,
+          "invalid_early": 5265,
+          "invalid_late": 8733882
+        }
+      }
+    }
+  ],
+  "input_bytes": {
+    "ascii": 16384,
+    "mixed": 16384,
+    "emoji": 16384,
+    "ascii_spans": 65536,
+    "invalid_early": 16384,
+    "invalid_late": 16384
+  },
+  "median_ns_per_operation": {
+    "baseline": {
+      "ascii": 5929.828333333333,
+      "mixed": 24778.037,
+      "emoji": 18742.377666666667,
+      "ascii_spans": 31706.006666666668,
+      "invalid_early": 1.7623333333333333,
+      "invalid_late": 5943.197666666667
+    },
+    "candidate": {
+      "ascii": 2936.0563333333334,
+      "mixed": 24562.958666666666,
+      "emoji": 18825.313666666665,
+      "ascii_spans": 14460.930666666667,
+      "invalid_early": 1.758,
+      "invalid_late": 2889.337666666667
+    }
+  },
+  "binary_sha256": {
+    "baseline": "9b17b14730405c4f518e83995021685f8284f859acabe0c84e2b119b8448130c",
+    "candidate": "1c714e61c78d528aae27a13690e4baa0e01a294b9bc90ce6492524b7361778e0"
+  },
+  "candidate_source_sha256": "5e35ca269c168ca9bc951c774ba43ccc2b642206ab69e1662312ca8351a28aea",
+  "compiler_revision": "eadca409f68210893f366e60d0c2f0dc29a339be",
+  "source_revision": "bb67c7e2fe4e1d8b612a2007833d8fcaa71adbea",
+  "dirty": false,
+  "scope": "Paired warm validation timings; deterministic shuffled order; not a universal ranking. See paired run notes for baseline source and compiler metadata."
+}

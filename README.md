@@ -5,7 +5,7 @@ Strict, allocation-free UTF-8 validation and scalar decoding for the
 Pure Goose, Apache-2.0. Experimental interface; no release yet.
 
 ```goose
-import text from "carabistouflette/goose-text@09d5f0c39e50d3270189bd0c6798cd10ab2f0c0d";
+import text from "carabistouflette/goose-text@bb67c7e2fe4e1d8b612a2007833d8fcaa71adbea";
 import std;
 
 fn main() {
@@ -104,3 +104,6 @@ See [SECURITY.md](SECURITY.md) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.
 edges of a readable page surrounded by inaccessible pages and makes the source
 page read-only during calls. This checks for reads beyond either edge and
 unexpected writes, including empty slices and complete/truncated scalar tails.
+
+See [the follow-up audit record](docs/validation.md) for exact test counts,
+fuzz execution scope and validation limits.
