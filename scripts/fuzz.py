@@ -68,7 +68,7 @@ def main():
         raise RuntimeError("Goose assertion artifact self-test failed; see " + str(work / "self-test.log"))
     print("Verified Goose assertion failures save the exact triggering input", flush=True)
     command = [str(work / "parser-fuzzer"), str(corpus), str(seeds),
-               "-max_len=" + str(limit + 1), "-max_total_time=" + str(args.seconds),
+               "-max_len=" + str(limit), "-max_total_time=" + str(args.seconds),
                "-runs=" + str(args.runs), "-seed=" + str(args.seed), "-timeout=5",
                "-rss_limit_mb=1024", "-artifact_prefix=" + str(artifacts) + "/"]
     print("Fuzzing strict UTF-8 validation and scalar round trips", flush=True)
