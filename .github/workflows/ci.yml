@@ -19,4 +19,5 @@ jobs:
       - run: make security
       - run: make sanitize SANITIZER_CC=gcc
       - run: make sanitize SANITIZER_CC=clang
+      - run: make fuzz
       - run: make bench BENCH_ITERATIONS=100

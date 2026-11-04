@@ -38,11 +38,14 @@ fn decode_utf8(source: u8[:], offset: i64) -> i64, i64 {
 fn validate_utf8(source: u8[:]) -> i64 {
     var at = 0;
     while at < source.len {
-        // Safe byte loads only: no alignment, word casts, padding or overreads.
-        while source.len - at >= 8 && (source[at] | source[at + 1] | source[at + 2] | source[at + 3] |
-                source[at + 4] | source[at + 5] | source[at + 6] | source[at + 7]) < 0x80 { at += 8; }
-        if at == source.len { break; }
-        if source[at] < 0x80 { at++; continue; }
+        if source[at] < 0x80 {
+            // Safe byte loads only: no alignment, word casts, padding or overreads.
+            // Enter this scan only on ASCII; Unicode needs at most four loads.
+            while source.len - at >= 8 && (source[at] | source[at + 1] | source[at + 2] | source[at + 3] |
+                    source[at + 4] | source[at + 5] | source[at + 6] | source[at + 7]) < 0x80 { at += 8; }
+            while at < source.len && source[at] < 0x80 { at++; }
+            if at == source.len { break; }
+        }
         let scalar, width = decode_utf8(source, at);
         if width == 0 { return at; }
         at += width;

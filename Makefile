@@ -12,6 +12,7 @@ check:
 	"$(GOOSE)" format --check text.goose tests examples bench
 	"$(GOOSE)" check tests/api.goose
 	"$(GOOSE)" check tests/oracle.goose
+	"$(GOOSE)" check tests/fuzz.goose
 	"$(GOOSE)" check examples/utf8.goose
 	"$(GOOSE)" check bench/bench.goose
 test:
@@ -39,3 +40,11 @@ bench:
 	mkdir -p .build
 	"$(GOOSE)" build bench/bench.goose --cc "$(CC)" -O2 -o .build/bench
 	BENCH_CC="$(CC)" python3 scripts/benchmark.py .build/bench $(BENCH_ITERATIONS)
+
+FUZZ_SECONDS ?= 30
+FUZZ_RUNS ?= 100000
+FUZZ_SEED ?= 20261104
+FUZZ_CC ?= clang
+.PHONY: fuzz
+fuzz:
+	python3 scripts/fuzz.py --goose "$(GOOSE)" --cc "$(FUZZ_CC)" --seconds "$(FUZZ_SECONDS)" --runs "$(FUZZ_RUNS)" --seed "$(FUZZ_SEED)"

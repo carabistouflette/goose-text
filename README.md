@@ -48,8 +48,8 @@ governed by Goose's runtime. Output belongs to the caller. No function retains
 input references, owns files, reads environment variables or uses global state.
 
 Validation is O(n) time and O(1) extra space with no allocation, safe eight-byte
-ASCII scans, no word casts or overreads. Decode/append take O(1) time; append may
-grow caller storage. Input slices have no arbitrary size cap: applications must
+ASCII scans, no word casts or overreads. Decode takes O(1) time. Append emits at most four bytes; buffer growth costs
+follow Goose’s builder/runtime. Input slices have no arbitrary size cap: applications must
 bound their input and iteration/output budgets. Scalar counts are neither
 user-perceived character counts nor terminal widths. Normalization, case folding,
 grapheme segmentation, streaming and replacement decoding are outside v1.
@@ -66,6 +66,7 @@ make format check test
 make property security
 make sanitize SANITIZER_CC=gcc
 make sanitize SANITIZER_CC=clang
+make fuzz
 make bench
 ```
 
@@ -78,6 +79,13 @@ Public tests run in-process, optimized native and debug native modes with bounds
 checks. They exhaust every Unicode scalar and surrogate rejection. The Python
 strict codec oracle checks all one/two-byte inputs, deterministic malformed and
 valid samples, all Unicode scalars in one document, byte offsets, long inputs,
-and encode/decode round trips. ASan/UBSan instrument the generated native code.
+and encode/decode round trips. ASan/UBSan instrument the generated native code. `make fuzz` runs a bounded
+Clang/libFuzzer campaign and first verifies that Goose assertion failures save
+the exact triggering input.
 These checks do not constitute a proof for all inputs. See [bench/README.md](bench/README.md)
 for reproducible benchmark scope. CI checks execution, never timing thresholds.
+
+Tested locally on Linux x86-64 with the pinned compiler, GCC and Clang. The
+library has no OS calls or native kernel; other platforms are unverified.
+Sanitizer/fuzzer development targets currently assume Linux GCC/Clang.
+See [SECURITY.md](SECURITY.md) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
