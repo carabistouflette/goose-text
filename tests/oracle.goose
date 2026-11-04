@@ -8,6 +8,15 @@ fn nibble(c: u8) -> u8 {
     assert(c >= 'a' && c <= 'f');
     c - 'a' + 10
 }
+fn unhex(input: u8[:], out: u8[>..]&) {
+    assert(input.len % 2 == 0);
+    out.clear();
+    var i = 0;
+    while i < input.len {
+        out.push(nibble(input[i]) * 16 + nibble(input[i + 1]));
+        i += 2;
+    }
+}
 fn main() {
     var line:    u8[>..] = [];
     var bytes:   u8[>..] = [];
@@ -15,13 +24,20 @@ fn main() {
     loop {
         line.clear();
         if !read_line(line) { break; }
-        assert(line.len % 2 == 0);
-        bytes.clear(); encoded.clear();
-        var i = 0;
-        while i < line.len {
-            bytes.push(nibble(line[i]) * 16 + nibble(line[i + 1]));
-            i += 2;
+        assert(line.len >= 2 && line[1] == '\t');
+        if line[0] == 'D' {
+            let separator = find(line[2..], "\t") + 2;
+            assert(separator > 2);
+            let offset, ok = parse_int(line[2..separator], 10);
+            assert(ok);
+            unhex(line[separator + 1..], bytes);
+            let scalar, width = text::decode_utf8(bytes, offset);
+            print(scalar, "\t", width);
+            continue;
         }
+        assert(line[0] == 'V');
+        unhex(line[2..], bytes);
+        encoded.clear();
         let error = text::validate_utf8(bytes);
         assert(text::valid_utf8(bytes) == (error == -1));
         var at = 0;

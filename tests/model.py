@@ -19,6 +19,12 @@ for lead in (0xC2, 0xDF, 0xE0, 0xED, 0xEF, 0xF0, 0xF4):
     for second in range(256):
         for tail in (b"", b"\x80", b"\xbf", b"\x80\x80", b"\xbf\xbf"):
             cases.append(bytes([lead, second]) + tail)
+# Deterministically vary third/fourth continuation positions, not just lead/second.
+for prefix, tail in ((b"\xe0\xa0", b""), (b"\xed\x9f", b""),
+                     (b"\xf0\x90", b"\x80"), (b"\xf4\x8f", b"\xbf"),
+                     (b"\xf0\x90\x80", b""), (b"\xf4\x8f\xbf", b"")):
+    for byte in range(256):
+        cases.append(prefix + bytes([byte]) + tail)
 for length in range(33):
     for suffix in (b"\x80", b"\xc2", b"\xe0\xa0", b"\xf4\x90\x80\x80", b"\xf4\x8f\xbf\xbf"):
         cases.append(b"x" * length + suffix + b"a" * length)
@@ -36,7 +42,7 @@ for data in cases:
         decoded = data[:error].decode("utf-8", errors="strict")
     expected.append((error, len(decoded), sum(map(ord, decoded))))
 binary = str(Path(sys.argv[1]).resolve())
-result = subprocess.run([binary], input="".join(data.hex() + "\n" for data in cases),
+result = subprocess.run([binary], input="".join("V\t" + data.hex() + "\n" for data in cases),
                         text=True, capture_output=True, check=True, timeout=120)
 lines = result.stdout.splitlines()
 assert len(lines) == len(cases), (len(lines), len(cases), result.stderr[:1000])

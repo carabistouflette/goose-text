@@ -69,6 +69,8 @@ make format check test
 make property security
 make sanitize SANITIZER_CC=gcc
 make sanitize SANITIZER_CC=clang
+make guard CC=gcc
+make guard CC=clang
 make fuzz
 make bench
 ```
@@ -82,7 +84,9 @@ Public tests run in-process, optimized native and debug native modes with bounds
 checks. They exhaust every Unicode scalar and surrogate rejection. The Python
 strict codec oracle checks all one/two-byte inputs, deterministic malformed and
 valid samples, all Unicode scalars in one document, byte offsets, long inputs,
-and encode/decode round trips. ASan/UBSan instrument the generated native code. `make fuzz` runs a bounded
+and encode/decode round trips. A separate incremental-codec oracle checks exact
+scalar values and widths at 618,629 arbitrary byte offsets, including valid
+suffixes after invalid prefixes. ASan/UBSan instrument the generated native code. `make fuzz` runs a bounded
 Clang/libFuzzer campaign and first verifies that Goose assertion failures save
 the exact triggering input.
 These checks do not constitute a proof for all inputs.
@@ -95,3 +99,8 @@ Tested locally on Linux x86-64 with the pinned compiler, GCC and Clang. The
 library has no OS calls or native kernel; other platforms are unverified.
 Sanitizer/fuzzer development targets currently assume Linux GCC/Clang.
 See [SECURITY.md](SECURITY.md) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+`make guard` is a Linux native-memory check. It places source slices at both
+edges of a readable page surrounded by inaccessible pages and makes the source
+page read-only during calls. This checks for reads beyond either edge and
+unexpected writes, including empty slices and complete/truncated scalar tails.

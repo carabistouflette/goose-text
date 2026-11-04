@@ -27,8 +27,10 @@ property:
 	mkdir -p .build
 	"$(GOOSE)" build tests/oracle.goose --cc "$(CC)" -O2 -o .build/oracle
 	python3 tests/model.py .build/oracle
+	python3 tests/decode-model.py .build/oracle
 	"$(GOOSE)" build tests/oracle.goose --cc "$(CC)" --debug --no-bce -o .build/oracle-debug
 	python3 tests/model.py .build/oracle-debug
+	python3 tests/decode-model.py .build/oracle-debug
 security: property
 sanitize:
 	mkdir -p .build
@@ -36,6 +38,7 @@ sanitize:
 	ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1 ./.build/api-sanitize
 	SANITIZER_CC="$(SANITIZER_CC)" "$(GOOSE)" build tests/oracle.goose --cc "$(abspath scripts/sanitizer-cc.sh)" --standalone -O2 --no-bce -o .build/oracle-sanitize
 	ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1 python3 tests/model.py .build/oracle-sanitize
+	ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1 python3 tests/decode-model.py .build/oracle-sanitize
 bench:
 	mkdir -p .build
 	"$(GOOSE)" build bench/bench.goose --cc "$(CC)" -O2 -o .build/bench
@@ -48,3 +51,10 @@ FUZZ_CC ?= clang
 .PHONY: fuzz
 fuzz:
 	python3 scripts/fuzz.py --goose "$(GOOSE)" --cc "$(FUZZ_CC)" --seconds "$(FUZZ_SECONDS)" --runs "$(FUZZ_RUNS)" --seed "$(FUZZ_SEED)"
+
+.PHONY: guard
+guard:
+	mkdir -p .build/guard
+	"$(GOOSE)" tests/fuzz.goose --standalone -O2 --header .build/guard/parser-fuzz.h -o .build/guard/text.c
+	"$(CC)" -O2 -o .build/guard/test .build/guard/text.c tests/guard.c -I.build/guard -lm -ldl -lpthread
+	./.build/guard/test
