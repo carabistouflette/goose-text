@@ -67,6 +67,7 @@ cd goose-text
 make setup
 make format check test
 make property security
+make mutation
 make sanitize SANITIZER_CC=gcc
 make sanitize SANITIZER_CC=clang
 make guard CC=gcc
@@ -107,3 +108,11 @@ unexpected writes, including empty slices and complete/truncated scalar tails.
 
 See [the follow-up audit record](docs/validation.md) for exact test counts,
 fuzz execution scope and validation limits.
+
+The exact encoder oracle independently compares every valid scalar's output
+with Python's strict encoder, including retention of existing output. Consumer
+overload tests check namespace and built-in byte-write isolation. `make mutation`
+checks that eleven representative codec mistakes are rejected by the selected
+API, validation, exact-offset or exact-encoding suite; unmodified controls must
+pass and compilation failures never count as detection. Mutants and logs stay
+under `.build/mutation/` and never modify the library source.

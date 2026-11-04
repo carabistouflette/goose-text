@@ -45,3 +45,35 @@ measurements and exact source/binary/compiler metadata. Longer inputs and all
 Unicode scalar values are also covered by deterministic tests independently of
 the fuzz campaign. Applications must still enforce their own input/output/work
 budgets; this library does not normalize text or impose application syntax rules.
+
+## Independent encoder and test-effectiveness follow-up
+
+A further audit on 2026-11-04 left `text.goose` byte-identical to the bounded-slice
+source above. New exact-encoding tests build a single growing output containing
+all 1,112,064 valid Unicode scalars and compare every byte with Python's strict
+encoder, without using Goose decoding. The stream includes an existing prefix;
+all surrogate rejections occur against nonempty output. Invalid extreme values
+are checked before the stream. This passed in-process, optimized native,
+bounds-checked debug native, and GCC/Clang ASan/UBSan execution.
+
+Consumer-defined `push`, generic `push_utf8` and global validation overloads
+could not intercept the namespaced API or built-in byte writes. The pinned
+compiler resolves array built-ins before free-function overloads. The regression
+fixture passed in-process and optimized native execution.
+
+`make mutation` also passed the unmodified API, validation, arbitrary-offset and
+exact-encoding controls, then detected all eleven selected deliberate mistakes:
+missing eighth-byte checks, overlong leads, surrogate decoding, above-Unicode
+values, invalid later continuations, wrong error offsets, rejecting valid suffixes
+after invalid prefixes, mutation before failed encoding, surrogate encoding,
+truncation off-by-one, and a paired ASCII encoder/decoder permutation.
+
+Each mutant must compile before it is tested. A test mismatch or an executed
+assertion/bounds failure is required; compiler errors, survivors and unexpected
+infrastructure failures fail the harness. The paired permutation is tested with
+the independent exact-encoding suite because inverse codec mistakes can cancel
+in round trips. The harness retains source hash, compiler version, results and
+logs under `.build/mutation/`. These representative mutations demonstrate
+specific detection paths; they are not an exhaustive mutation-coverage metric.
+Two independent reviews found no further blocker. Production code and the
+previously measured performance remain unchanged.
