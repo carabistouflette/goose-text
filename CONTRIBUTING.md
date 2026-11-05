@@ -14,9 +14,9 @@ use semantic versions when a reviewed release is ready.
 
 Behavior changes require public API regressions, independent review, and fixes
 for actionable findings. Run `make format`, `make check test property`, and
-`git diff --check`. Run security and GCC/Clang ASan/UBSan checks for validation
-changes. Test malformed input, offset extremes, append failure atomicity and
-integration in a consumer package. Keep CI passing. Never commit credentials,
+`git diff --check`. Use the [additional development checks](docs/development.md)
+for codec or compiler changes. Test malformed input, offset extremes, append
+failure atomicity and integration in a consumer package. Keep CI passing. Never commit credentials,
 generated compiler output or private workspace notes.
 
 Pin a reviewed full upstream commit in `GOOSE_REVISION`; compiler changes require

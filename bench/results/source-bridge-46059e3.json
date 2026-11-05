@@ -1,0 +1,182 @@
+{
+  "audit_date": "2026-11-05",
+  "audited_public_main": "46059e30be79ece6efd4317eb0adc6d213c808ab",
+  "measured_candidate": "bb67c7e2fe4e1d8b612a2007833d8fcaa71adbea",
+  "measured_baseline": "6f31dbc8a7d78f17994c3f586cfbbe053608fdc1",
+  "original_historical_source": "09d5f0c39e50d3270189bd0c6798cd10ab2f0c0d",
+  "status": "Source bridge PASS; no new timing run",
+  "checked_files_identical_candidate_to_audited_main": {
+    "text.goose": {
+      "sha256": "5e35ca269c168ca9bc951c774ba43ccc2b642206ab69e1662312ca8351a28aea",
+      "git_blob": "88b5eae747767f7719b9bb404354d57d5e12f49d"
+    },
+    "bench/bench.goose": {
+      "sha256": "1bfc9a66898ba83574f5e57308150fe46b7dd49f3a445d24947aed637c3750f3",
+      "git_blob": "323011f913661db5a06e3f59c5b4256c2076949b"
+    },
+    "GOOSE_REVISION": {
+      "sha256": "64e14b181dfe96743211738fb0f1b1f7798ea940da2ca50ff122e6f028c24e15",
+      "git_blob": "86a83a7da7bd50a064c3e9fd23655224550fb987"
+    },
+    "scripts/benchmark.py": {
+      "sha256": "70800ea6e84ce6979a220cf3404a09922038ff399793f83f10f037b1a4a2b257",
+      "git_blob": "eda02839353e5296eb73914656ecfe1812f270e1"
+    },
+    "scripts/compare-bench.py": {
+      "sha256": "80658dd207ab7f3f84590d388de001c7dc88e97be9deb32c8770276726ab9223",
+      "git_blob": "cab0a248e3b13280000a31568be6d1276544badc"
+    },
+    "scripts/setup-goose.sh": {
+      "sha256": "a258081d49cd91986ebbc17a5b2bec7b0acbde54821416143bbac7feec6977e2",
+      "git_blob": "78fee792de56cd969cf6622453692806473c5d72"
+    }
+  },
+  "baseline_bridge": "Original09d5 and paired-baseline6f31 have identical text.goose, bench/bench.goose, GOOSE_REVISION, benchmark.py and setup-goose.sh; compare-bench.py did not exist there.",
+  "compiler_and_dependencies": {
+    "goose_revision": "eadca409f68210893f366e60d0c2f0dc29a339be",
+    "dependencies": "Pure Goose library imports std; benchmark also imports os. These come from the pinned Goose compiler checkout, with no vendored dependencies. The pin and setup script are unchanged.",
+    "recorded_cc_version": "gcc (GCC) 16.2.1 20260810",
+    "recorded_flags": "goose build -O2",
+    "limits": "Historical reports record compiler source pin and C compiler version, not compiler executable digest or full host package inventory. This source bridge does not retroactively attest compiler-build identity or claim reproducible binary bytes."
+  },
+  "artifacts": {
+    "bench/results/2026-11-04-linux-x86_64.json": {
+      "sha256": "121ed035bba0986c78e3a4d881ef0bb370f74448b933fd56f5a8eda8de0d8ac6",
+      "classification": "historical unoptimized implementation"
+    },
+    "bench/results/2026-11-04-paired-ascii-slices.json": {
+      "sha256": "908d597fd3b2e94ea65aaa56a2ab39a9e936dd032e2a13d08a700fef851fe990",
+      "classification": "historical paired run; candidate source still current at audited main"
+    }
+  },
+  "paired_summary": {
+    "ascii": {
+      "baseline": {
+        "median_ns_per_validation": 5929.828333333333,
+        "min_ns_per_validation": 5868.025333333333,
+        "max_ns_per_validation": 6225.017333333333
+      },
+      "candidate": {
+        "median_ns_per_validation": 2936.0563333333334,
+        "min_ns_per_validation": 2812.992333333333,
+        "max_ns_per_validation": 3007.5696666666668
+      },
+      "ratio_of_medians": 0.4951334454032818
+    },
+    "mixed": {
+      "baseline": {
+        "median_ns_per_validation": 24778.037,
+        "min_ns_per_validation": 24426.318,
+        "max_ns_per_validation": 26381.817
+      },
+      "candidate": {
+        "median_ns_per_validation": 24562.958666666666,
+        "min_ns_per_validation": 23841.02666666667,
+        "max_ns_per_validation": 25478.44
+      },
+      "ratio_of_medians": 0.9913197993314267
+    },
+    "emoji": {
+      "baseline": {
+        "median_ns_per_validation": 18742.377666666667,
+        "min_ns_per_validation": 18378.412333333334,
+        "max_ns_per_validation": 19210.056333333334
+      },
+      "candidate": {
+        "median_ns_per_validation": 18825.313666666665,
+        "min_ns_per_validation": 18516.246666666666,
+        "max_ns_per_validation": 19958.343
+      },
+      "ratio_of_medians": 1.0044250522252307
+    },
+    "ascii_spans": {
+      "baseline": {
+        "median_ns_per_validation": 31706.006666666668,
+        "min_ns_per_validation": 31271.88533333333,
+        "max_ns_per_validation": 32786.32233333333
+      },
+      "candidate": {
+        "median_ns_per_validation": 14460.930666666667,
+        "min_ns_per_validation": 14392.362666666666,
+        "max_ns_per_validation": 15135.468333333334
+      },
+      "ratio_of_medians": 0.45609435520209524
+    },
+    "invalid_early": {
+      "baseline": {
+        "median_ns_per_validation": 1.7623333333333333,
+        "min_ns_per_validation": 1.7316666666666667,
+        "max_ns_per_validation": 2.207333333333333
+      },
+      "candidate": {
+        "median_ns_per_validation": 1.758,
+        "min_ns_per_validation": 1.7356666666666667,
+        "max_ns_per_validation": 1.887
+      },
+      "ratio_of_medians": 0.9975411386419519
+    },
+    "invalid_late": {
+      "baseline": {
+        "median_ns_per_validation": 5943.197666666667,
+        "min_ns_per_validation": 5857.460666666667,
+        "max_ns_per_validation": 6237.533666666666
+      },
+      "candidate": {
+        "median_ns_per_validation": 2889.337666666667,
+        "min_ns_per_validation": 2814.998666666667,
+        "max_ns_per_validation": 2958.068
+      },
+      "ratio_of_medians": 0.4861587698608712
+    }
+  },
+  "historical_summary": {
+    "ascii": {
+      "median_ns_per_validation": 6260.152,
+      "min_ns_per_validation": 6063.25,
+      "max_ns_per_validation": 12061.583
+    },
+    "mixed": {
+      "median_ns_per_validation": 26198.352,
+      "min_ns_per_validation": 25070.298,
+      "max_ns_per_validation": 30738.662
+    },
+    "emoji": {
+      "median_ns_per_validation": 19508.504,
+      "min_ns_per_validation": 18838.303,
+      "max_ns_per_validation": 22237.675
+    },
+    "ascii_spans": {
+      "median_ns_per_validation": 33571.046,
+      "min_ns_per_validation": 32627.74,
+      "max_ns_per_validation": 38805.66
+    },
+    "invalid_early": {
+      "median_ns_per_validation": 1.999,
+      "min_ns_per_validation": 1.922,
+      "max_ns_per_validation": 2.106
+    },
+    "invalid_late": {
+      "median_ns_per_validation": 6189.3,
+      "min_ns_per_validation": 5894.806,
+      "max_ns_per_validation": 6301.259
+    }
+  },
+  "limits": [
+    "Shared development host, no exclusive isolation.",
+    "Only validate_utf8 is timed. No encoding, decoding, memory-allocation or cross-library timing claims.",
+    "Dispersion is min/max across process-average ns per validation, not per-call latency or a confidence interval.",
+    "Future code, harness or compiler changes require a new bridge or measurements; documentation dates do not establish currentness."
+  ],
+  "benchmark_build_recipe_bridge": {
+    "path": "Makefile",
+    "target": "bench",
+    "sha256": "bd2d4ffe18959f4a9a6fb50207cbad1325ac0098af825be3533b3499ff5dc04f",
+    "identical_at_revisions": [
+      "bb67c7e2fe4e1d8b612a2007833d8fcaa71adbea",
+      "46059e30be79ece6efd4317eb0adc6d213c808ab",
+      "6f31dbc8a7d78f17994c3f586cfbbe053608fdc1",
+      "09d5f0c39e50d3270189bd0c6798cd10ab2f0c0d"
+    ],
+    "note": "The benchmark recipe is identical; unrelated test targets changed, so whole-Makefile identity is not claimed."
+  }
+}
