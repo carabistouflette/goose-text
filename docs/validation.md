@@ -1,4 +1,10 @@
-# UTF-8 audit validation
+# Validation history
+
+These are historical test results, not checks rerun on every documentation commit.
+The production source at published `46059e30be79ece6efd4317eb0adc6d213c808ab`
+is byte-identical to the implementation tested below; see the
+[checked source bridge](../bench/results/source-bridge-46059e3.json).
+For commands and prerequisites, see [development](development.md).
 
 The 2026-11-04 follow-up audit tested library source
 `bb67c7e2fe4e1d8b612a2007833d8fcaa71adbea` on Linux x86-64 with pinned Goose
@@ -41,8 +47,8 @@ crash-artifact capture. The generated-input cap was 65,536 bytes; the observed
 mutated-size growth does not imply every size up to that cap was exercised.
 
 [Benchmark records](../bench/README.md) retain all fixtures, shuffled paired
-measurements and exact source/binary/compiler metadata. Longer inputs and all
-Unicode scalar values are also covered by deterministic tests independently of
+measurements and recorded source, benchmark-binary and compiler-pin metadata.
+Longer inputs and all Unicode scalar values are also covered by deterministic tests independently of
 the fuzz campaign. Applications must still enforce their own input/output/work
 budgets; this library does not normalize text or impose application syntax rules.
 
@@ -75,5 +81,5 @@ the independent exact-encoding suite because inverse codec mistakes can cancel
 in round trips. The harness retains source hash, compiler version, results and
 logs under `.build/mutation/`. These representative mutations demonstrate
 specific detection paths; they are not an exhaustive mutation-coverage metric.
-Two independent reviews found no further blocker. Production code and the
-previously measured performance remain unchanged.
+Two independent reviews found no further blocker. Production code remained
+unchanged; the benchmark source bridge describes which measurements still apply.
