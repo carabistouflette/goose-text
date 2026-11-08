@@ -50,6 +50,7 @@ checkout, use `import text from "../goose-text";` instead.
 | `valid_utf8(bytes)` | Whether the entire byte slice is valid UTF-8 |
 | `decode_utf8(bytes, offset)` | `(Unicode scalar, byte width)` for one sequence, or `(-1, 0)` on failure |
 | `append_utf8(out, scalar)` | Append one scalar; return false without changing output if invalid |
+| `validate_utf8_detailed(bytes)` | `Utf8Error { offset, length }` for the first malformed sequence |
 
 Inputs are `u8[:]` byte slices; offsets and scalars are `i64`. `out` is a
 caller-owned growable byte buffer (`u8[>..]&`).
@@ -59,6 +60,21 @@ truncation and values above U+10FFFF. For `61 E2 28 A1`, it reports offset 1:
 the malformed sequence's lead byte. Truncation also reports the lead byte.
 Empty input is valid. NUL, BOM, noncharacters and U+FFFD are accepted; they are
 neither stripped nor replaced.
+
+`validate_utf8_detailed` returns `offset == -1` and `length == 0` when the whole
+input is valid. Otherwise `offset` is the same value `validate_utf8` returns and
+`length` says how many bytes of that sequence are malformed: `1..3` is the
+malformed prefix a caller replaces, and `0` means the input ended inside a
+sequence, so nothing after it can be recovered. It calls `validate_utf8` once and
+inspects at most four bytes, only on failure, so the success path is unchanged.
+
+`length` is Rust's `Utf8Error::error_len()`: `1..3` is `Some(1..3)` and `0` is
+`None`. For every non-truncated error it also equals Python's
+`UnicodeDecodeError.end - start`; for a truncated one Python reports
+`end == len(bytes)` where this reports `0`. Advancing by `length` and emitting one
+replacement scalar per malformed sequence reproduces Rust's
+`String::from_utf8_lossy` and Python's `errors="replace"`; see
+[the diagnostics example](examples/diagnostics.goose).
 
 Decoding checks only the sequence at the supplied byte offset. It can succeed
 after an invalid prefix or before an invalid suffix. Negative offsets, EOF,
@@ -75,9 +91,10 @@ Validation takes O(n) time and O(1) extra space; decoding takes O(1) time.
 Appending emits at most four bytes, plus any buffer growth. There is no library
 input-size cap: callers must bound input, output and total work. Scalar counts
 are not grapheme counts or terminal widths. The library does not provide
-normalization, case folding, grapheme segmentation, streaming or replacement
-decoding. Unlike this API, the pinned standard library's `each_utf8` replaces
-malformed input and `push_utf8` permits surrogate encodings for JSON.
+normalization, case folding, grapheme segmentation, streaming or a replacement
+decoder: `validate_utf8_detailed` reports what a caller needs to write one, and
+does not write it. Unlike this API, the pinned standard library's `each_utf8`
+replaces malformed input and `push_utf8` permits surrogate encodings for JSON.
 
 ## Support and development
 

@@ -2,6 +2,7 @@ GOOSE ?= .toolchain/goose/build/goose
 CC ?= gcc
 SANITIZER_CC ?= gcc
 BENCH_ITERATIONS ?= 1000
+RUST_ORACLE ?=
 .NOTPARALLEL:
 .PHONY: setup format check test property security sanitize bench
 setup:
@@ -15,7 +16,9 @@ check:
 	"$(GOOSE)" check tests/api.goose
 	"$(GOOSE)" check tests/oracle.goose
 	"$(GOOSE)" check tests/fuzz.goose
+	"$(GOOSE)" check tests/diagnostics.goose
 	"$(GOOSE)" check examples/utf8.goose
+	"$(GOOSE)" check examples/diagnostics.goose
 	"$(GOOSE)" check bench/bench.goose
 test:
 	mkdir -p .build
@@ -29,6 +32,7 @@ test:
 	"$(GOOSE)" build tests/api.goose --cc "$(CC)" --debug --no-bce -o .build/api-debug
 	./.build/api-debug
 	"$(GOOSE)" run examples/utf8.goose
+	"$(GOOSE)" run examples/diagnostics.goose
 property:
 	mkdir -p .build
 	"$(GOOSE)" build tests/oracle.goose --cc "$(CC)" -O2 -o .build/oracle
@@ -41,6 +45,10 @@ property:
 	python3 tests/encode-model.py ./.build/encoding
 	"$(GOOSE)" build tests/encoding.goose --cc "$(CC)" --debug --no-bce -o .build/encoding-debug
 	python3 tests/encode-model.py ./.build/encoding-debug
+	"$(GOOSE)" build tests/diagnostics.goose --cc "$(CC)" -O2 -o .build/diagnostics
+	python3 tests/diagnostics-model.py .build/diagnostics $(if $(RUST_ORACLE),--rust $(RUST_ORACLE),)
+	"$(GOOSE)" build tests/diagnostics.goose --cc "$(CC)" --debug --no-bce -o .build/diagnostics-debug
+	python3 tests/diagnostics-model.py .build/diagnostics-debug $(if $(RUST_ORACLE),--rust $(RUST_ORACLE),)
 security: property
 sanitize:
 	mkdir -p .build
@@ -51,6 +59,8 @@ sanitize:
 	ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1 python3 tests/decode-model.py .build/oracle-sanitize
 	SANITIZER_CC="$(SANITIZER_CC)" "$(GOOSE)" build tests/encoding.goose --cc "$(abspath scripts/sanitizer-cc.sh)" --standalone -O2 --no-bce -o .build/encoding-sanitize
 	ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1 python3 tests/encode-model.py ./.build/encoding-sanitize
+	SANITIZER_CC="$(SANITIZER_CC)" "$(GOOSE)" build tests/diagnostics.goose --cc "$(abspath scripts/sanitizer-cc.sh)" --standalone -O2 --no-bce -o .build/diagnostics-sanitize
+	ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1 python3 tests/diagnostics-model.py .build/diagnostics-sanitize
 bench:
 	mkdir -p .build
 	"$(GOOSE)" build bench/bench.goose --cc "$(CC)" -O2 -o .build/bench

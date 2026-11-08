@@ -12,11 +12,19 @@ make format check test
 make property
 ```
 
-`check` formats nothing: it checks formatting and typechecks tests, the example
+`check` formats nothing: it checks formatting and typechecks tests, the examples
 and benchmark. `test` runs API, encoding and consumer-overload checks in Goose
-and native modes, including a bounds-checked debug build. `property` compares
-validation, arbitrary-offset decoding and exact encoding with Python's strict
-codecs. `security` is an alias for `property`.
+and native modes, including a bounds-checked debug build, and runs both examples.
+`property` compares validation, arbitrary-offset decoding, exact encoding and the
+structured diagnostic with Python's strict codecs. `security` is an alias for
+`property`.
+
+`tests/diagnostics-model.py` drives `tests/diagnostics.goose` over a
+deterministic corpus and compares `validate_utf8_detailed` with Python's
+`UnicodeDecodeError`. Pass `RUST_ORACLE=/path/to/binary` to also compare with
+Rust's `std::str::Utf8Error::error_len()`; the binary reads one hex input per
+line and prints `offset<TAB>length`, with `0` for `None`. The Rust oracle is
+optional because the repository does not vendor a Rust toolchain.
 
 For changes to validation, decoding, encoding or the compiler pin, also run:
 
