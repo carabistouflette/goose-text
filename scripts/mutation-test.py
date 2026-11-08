@@ -19,14 +19,34 @@ original = (ROOT / "text.goose").read_text()
 mutants = [
     ("ascii_eighth_byte", "api", [("chunk[6] | chunk[7]", "chunk[6] | 0")]),
     ("overlong_lead", "api", [("lead >= 0xc2", "lead >= 0xc0")]),
-    ("surrogate_decode", "api", [("if lead == 0xed { hi = 0x9f; }", "")]),
-    ("above_unicode_max", "api", [("if lead == 0xf4 { hi = 0x8f; }", "if lead == 0xf4 { hi = 0x90; }")]),
+    ("surrogate_decode", "api", [("        if lead == 0xed { hi = 0x9f; }", "")]),
+    ("above_unicode_max", "api", [("        if lead == 0xf4 { hi = 0x8f; }", "        if lead == 0xf4 { hi = 0x90; }")]),
     ("later_continuation", "model", [("if byte < 0x80 || byte > 0xbf { return -1, 0; }", "")]),
     ("wrong_error_offset", "api", [("if width == 0 { return at; }", "if width == 0 { return at + 1; }")]),
     ("invalid_prefix_blocks_suffix", "decode", [("let lead = source[offset];", "if offset > 0 && source[0] == 0xff { return -1, 0; }\n    let lead = source[offset];")]),
     ("mutate_before_reject", "api", [("{ return false; }", "{ out.clear(); return false; }")]),
     ("surrogate_encode", "api", [("(scalar >= 0xd800 && scalar <= 0xdfff)", "false")]),
     ("truncation_off_by_one", "api", [("width > source.len - offset", "width > source.len - offset + 1")]),
+    # Structured diagnostics: each mutant must be caught by the api suite, which
+    # pins exact (offset, length) pairs for every malformed class.
+    ("detail_illegal_lead_as_truncation", "api", [(
+        "if lead < 0xc2 || lead > 0xf4 { return Utf8Error { offset: at, length: 1 }; }",
+        "if lead < 0xc2 || lead > 0xf4 { return Utf8Error { offset: at, length: 0 }; }")]),
+    ("detail_truncation_as_replaceable", "api", [(
+        "if i >= source.len - at { return Utf8Error { offset: at, length: 0 }; }",
+        "if i >= source.len - at { return Utf8Error { offset: at, length: i }; }")]),
+    ("detail_length_always_one", "api", [(
+        "if byte < low || byte > high { return Utf8Error { offset: at, length: i }; }",
+        "if byte < low || byte > high { return Utf8Error { offset: at, length: 1 }; }")]),
+    ("detail_drops_surrogate_bound", "api", [(
+        "    if lead == 0xe0 { lo = 0xa0; }\n    if lead == 0xed { hi = 0x9f; }",
+        "    if lead == 0xe0 { lo = 0xa0; }")]),
+    ("detail_drops_e0_bound", "api", [("\n    if lead == 0xe0 { lo = 0xa0; }", "")]),
+    ("detail_drops_f0_bound", "api", [("\n    if lead == 0xf0 { lo = 0x90; }", "")]),
+    ("detail_drops_f4_bound", "api", [("\n    if lead == 0xf4 { hi = 0x8f; }", "")]),
+    ("detail_drops_first_continuation_bound", "api", [(
+        "let low:  u8 = if i == 1 { lo } else { 0x80 };",
+        "let low:  u8 = 0x80;")]),
     # A coupled encoder/decoder permutation can preserve all round trips.
     ("paired_ascii_permutation", "encode", [
         ("if lead < 0x80 { return lead, 1; }", "if lead < 0x80 { return lead ^ 1, 1; }"),

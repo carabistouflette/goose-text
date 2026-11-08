@@ -83,3 +83,109 @@ logs under `.build/mutation/`. These representative mutations demonstrate
 specific detection paths; they are not an exhaustive mutation-coverage metric.
 Two independent reviews found no further blocker. Production code remained
 unchanged; the benchmark source bridge describes which measurements still apply.
+
+## Structured diagnostics (2026-11-08)
+
+`validate_utf8_detailed` was added on branch `feat/utf8-detailed-diagnostics`
+from published `2e0081bd24be3f0e913bd709a642e955c43f61cb`. `validate_utf8`,
+`valid_utf8`, `decode_utf8` and `append_utf8` are byte-identical to that commit;
+the new function calls `validate_utf8` once and inspects at most four bytes, only
+on failure.
+
+The contract was fixed from primary sources before implementation, not assumed:
+Rust's `library/core/src/str/validations.rs` `run_utf8_validation` (the
+`err!(Some(1))`/`Some(2)`/`Some(3)`/`None` sites) and Python's
+`UnicodeDecodeError.start`/`end`/`reason`. Both agree on every case tested:
+`length` is `1..3` for a malformed prefix and `0` for an input that ends inside a
+sequence. For a truncated input Python reports `end == len(bytes)` where this
+reports `0`; that difference is documented in the README.
+
+Commands executed, each with its real exit status captured from `make` (output
+kept under `.build/logs/`):
+
+```sh
+make format check test property RUST_ORACLE=/tmp/utf8oracle/target/release/utf8oracle   # exit 0
+make guard CC=gcc                                                                        # exit 0
+make guard CC=clang                                                                      # exit 0
+make sanitize SANITIZER_CC=gcc                                                           # exit 0
+make sanitize SANITIZER_CC=clang                                                         # exit 0
+make mutation                                                                            # exit 0
+make fuzz FUZZ_SECONDS=45 FUZZ_RUNS=200000 FUZZ_CC=clang                                 # exit 0
+```
+
+The shared pinned compiler `eadca409f68210893f366e60d0c2f0dc29a339be`
+(binary sha256 `3cad45a1…`) was reused; no compiler was rebuilt.
+
+The original `tests/diagnostics-model.py` campaign compared 23,610 inputs with
+Python and a locally built Rust `std::str::Utf8Error::error_len()` oracle in
+optimized and bounds-checked debug builds. Its GCC/Clang ASan/UBSan runs used
+the Python oracle only: those commands did not pass `RUST_ORACLE`. The retained
+Rust source enables fresh reproduction; its binary identity is not established
+as identical to that original local Cargo helper. The corpus covers every single byte, every two-byte
+pair around the interesting leads, three- and four-byte combinations, valid
+prefixes of length 0..24 before each malformed class, and 20,000 seeded random
+inputs.
+
+The consumer example `examples/diagnostics.goose` repairs malformed input by
+advancing by `length` and emitting one U+FFFD per malformed sequence. Its output
+and replacement counts match Python's `errors="replace"` on all eight
+demonstrated inputs, including `a\xc0\x80b` (two replacements, because `0xc0` is
+an invalid lead and `0x80` a stray continuation) and `a\xf4\x90\x80\x80b` (four).
+
+The original mutation campaign detected sixteen mutants. Five targeted the new function: an
+illegal lead reported as truncation, truncation reported as replaceable, a length
+fixed at one, a dropped surrogate bound, and a dropped first-continuation bound.
+The first run of the surrogate mutant **survived**, which exposed a real gap: the
+total-function fall-through returns `length: 1`, so a dropped bound is
+unobservable unless a later byte is also bad. The API suite now pins
+`\xe0\x9f\x28`, `\xed\xa0\x28`, `\xf0\x8f\x28` and `\xf4\x90\x28` (all length 1,
+confirmed against both oracles), and the mutant is detected. Two pre-existing
+mutant anchors were made indentation-specific because the new function repeats
+their text. The retained list now also removes the `0xe0`, `0xf0` and `0xf4`
+diagnostic bounds separately, for nineteen mutants total. These extend the list;
+the API regression cases already detect all four bound removals.
+
+The fuzz campaign ran 200,000 instrumented executions in 9 seconds with seed
+20261104, coverage 260 edges, no failure. `tests/fuzz.goose` now also asserts
+that the detailed offset equals the plain one, that `length` stays in `0..3`,
+that a malformed prefix still fails when the input is truncated right after it,
+that a zero length implies a valid lead with 1..3 bytes present, and that the
+repair loop terminates and always yields valid UTF-8.
+
+Limits of this evidence: no external implementation was benchmarked, so no
+performance claim is made for the new function. Existing entry points are
+unchanged; the new entry point calls `validate_utf8`, checks its result and
+inspects at most four bytes on failure. The initial Rust oracle was a local helper;
+source for a fresh oracle is now retained in `tests/diagnostics_oracle.rs` for reproduction without
+Cargo dependencies. The repository does not vendor a Rust toolchain. The
+original CI ran Python alone; the review follow-up builds the retained source
+with the runner's Rust compiler and explicitly passes it to CI property and
+sanitizer checks. Local commands still default to Python alone.
+
+### Oracle failure-control correction
+
+Coordinator review found that the initial Python runner printed up to twenty
+mismatches but still returned success. A proxy changing only the empty-input
+diagnostic reproduced this: the original runner exited 0, while the corrected
+runner exits 1. The runner now fails on any mismatch and the property target
+includes that negative control. Earlier positive logs are superseded by the
+coordinator's rerun with the corrected runner; no library API changed in this
+test correction.
+
+### Evidence identities
+
+The original `.build/logs/final-*` files describe `f754ffe`, before the runner
+failure-control fix in `630f281`. The production module, API/fuzz tests and
+mutation script were byte-identical across those two commits, so their original
+coverage applies to those files. They do not validate the later runner changes.
+The two coordinator `/tmp` follow-up logs did not retain explicit command/exit
+records. Fresh review-follow-up logs capture each command and exit separately;
+they do not retroactively supply missing records for the old runs.
+
+Pass `RUST_ORACLE` explicitly to `make property` or `make sanitize` to include
+the retained Rust oracle. An omitted value means Python-only diagnostics checks.
+
+The review follow-up also rejects adapter stderr (including a recoverable
+sanitizer diagnostic), propagates proxy stderr, checks the single-mismatch
+message as a complete line and removes an unused Rust helper. Its negative
+controls cover a wrong result, stderr with exit zero and a nonzero adapter exit.

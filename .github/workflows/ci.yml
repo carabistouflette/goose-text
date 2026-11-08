@@ -17,9 +17,10 @@ jobs:
       - run: make setup
       - run: make check test
       - run: make mutation
-      - run: make security
-      - run: make sanitize SANITIZER_CC=gcc
-      - run: make sanitize SANITIZER_CC=clang
+      - run: make rust-oracle
+      - run: make security RUST_ORACLE="$PWD/.build/diagnostics-rust"
+      - run: make sanitize SANITIZER_CC=gcc RUST_ORACLE="$PWD/.build/diagnostics-rust"
+      - run: make sanitize SANITIZER_CC=clang RUST_ORACLE="$PWD/.build/diagnostics-rust"
       - run: make guard CC=gcc
       - run: make guard CC=clang
       - run: make fuzz

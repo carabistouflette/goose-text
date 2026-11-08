@@ -12,11 +12,36 @@ make format check test
 make property
 ```
 
-`check` formats nothing: it checks formatting and typechecks tests, the example
+`check` formats nothing: it checks formatting and typechecks tests, the examples
 and benchmark. `test` runs API, encoding and consumer-overload checks in Goose
-and native modes, including a bounds-checked debug build. `property` compares
-validation, arbitrary-offset decoding and exact encoding with Python's strict
-codecs. `security` is an alias for `property`.
+and native modes, including a bounds-checked debug build, and runs both examples.
+`property` compares validation, arbitrary-offset decoding, exact encoding and the
+structured diagnostic with Python's strict codecs. `security` is an alias for
+`property`.
+
+`tests/diagnostics-model.py` drives `tests/diagnostics.goose` over a
+deterministic corpus and compares `validate_utf8_detailed` with Python's
+`UnicodeDecodeError`. Pass `RUST_ORACLE=/path/to/binary` to also compare with
+Rust's `std::str::Utf8Error::error_len()`; the binary reads one hex input per
+line and prints `offset<TAB>length`, with `0` for `None`. The Rust oracle is
+optional because the repository does not vendor a Rust toolchain.
+
+Its source is retained in `tests/diagnostics_oracle.rs`. With an existing Rust
+compiler, reproduce the optional comparison without downloading any crates:
+
+```sh
+mkdir -p .build
+make rust-oracle
+make property RUST_ORACLE="$PWD/.build/diagnostics-rust"
+make sanitize RUST_ORACLE="$PWD/.build/diagnostics-rust"
+```
+
+Local commands keep Rust optional. CI builds this helper with its installed
+Rust compiler and uses it alongside Python in property and sanitizer checks.
+
+The Python oracle rejects any mismatch, even a single one.
+`tests/diagnostics-model-check.py` verifies that behavior using a proxy which
+changes exactly one result from the real Goose adapter.
 
 For changes to validation, decoding, encoding or the compiler pin, also run:
 
@@ -40,7 +65,7 @@ a 64 KiB input cap and both time/run ceilings. Logs and crashes stay in
 `.build/fuzz/`. The default `make fuzz` limits are 30 seconds and 100,000 runs;
 the longer command above stops at whichever ceiling is reached first.
 
-`make mutation` checks eleven selected codec mistakes. Unmodified controls must
+`make mutation` checks nineteen selected codec and diagnostic mistakes. Unmodified controls must
 pass; every mutant must compile, then fail an executed test. Compiler failures
 do not count as detection. Generated sources and logs stay in `.build/mutation/`.
 These checks demonstrate specific test behavior, not coverage of every bug.

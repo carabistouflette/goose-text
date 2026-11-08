@@ -66,3 +66,51 @@ fn append_utf8(out: u8[>..]&, scalar: i64) -> bool {
     push_utf8(out, scalar);
     return true;
 }
+
+// Structured diagnostic for the first malformed sequence. `offset` is -1 when
+// the whole input is valid. Otherwise `offset` is the zero-based start of the
+// sequence and `length` is how many bytes of it are malformed: 1..3 for a
+// malformed prefix, 0 when the input ends inside a sequence.
+struct Utf8Error {
+    offset: i64 = -1,
+    length: i64 = 0,
+}
+
+// Return the structured diagnostic for the first malformed sequence.
+//
+// Calls `validate_utf8` once and inspects at most four bytes, only on failure,
+// so the success path is exactly `validate_utf8`'s. `length` matches Rust's
+// `Utf8Error::error_len()`: 1..3 is the malformed prefix a caller replaces, 0 is
+// Rust's `None`, an input that ended inside a sequence. For every non-truncated
+// error it also equals Python's `UnicodeDecodeError.end - start`; for a
+// truncated one Python reports `end == len(source)` where this reports 0.
+fn validate_utf8_detailed(source: u8[:]) -> Utf8Error {
+    let at = validate_utf8(source);
+    if at < 0 { return Utf8Error { .. }; }
+    let lead = source[at];
+    // 0x80..0xc1 and 0xf5..0xff cannot start a sequence: one byte is malformed.
+    if lead < 0xc2 || lead > 0xf4 { return Utf8Error { offset: at, length: 1 }; }
+    var width = 2;
+    var lo: u8 = 0x80;
+    var hi: u8 = 0xbf;
+    if lead >= 0xe0 { width = 3; }
+    if lead >= 0xf0 { width = 4; }
+    if lead == 0xe0 { lo = 0xa0; }
+    if lead == 0xed { hi = 0x9f; }
+    if lead == 0xf0 { lo = 0x90; }
+    if lead == 0xf4 { hi = 0x8f; }
+    // The first continuation byte carries the overlong, surrogate and
+    // above-U+10FFFF bounds; the rest are plain UTF8-tail bytes.
+    for i in 1..width {
+        // Compare against the remaining length, as `decode_utf8` does, so the
+        // end test never forms `at + i`.
+        if i >= source.len - at { return Utf8Error { offset: at, length: 0 }; }
+        let byte = source[at + i];
+        let low:  u8 = if i == 1 { lo } else { 0x80 };
+        let high: u8 = if i == 1 { hi } else { 0xbf };
+        if byte < low || byte > high { return Utf8Error { offset: at, length: i }; }
+    }
+    // Unreachable: `validate_utf8` returned this offset, so one check above
+    // failed. Kept so the function is total without a second validator.
+    return Utf8Error { offset: at, length: 1 };
+}
