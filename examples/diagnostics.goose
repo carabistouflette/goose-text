@@ -15,6 +15,8 @@ const REPLACEMENT: i64 = 0xfffd;
 fn repair(source: u8[:], out: u8[>..]&) -> i64 {
     var at = 0;
     var replaced = 0;
+    // Validation stops at the first error. Advancing past that prefix keeps
+    // later iterations from rescanning it; the scan and copying are O(n).
     while at < source.len {
         let error = text::validate_utf8_detailed(source[at..]);
         if error.offset < 0 { out.append(source[at..]); break; }

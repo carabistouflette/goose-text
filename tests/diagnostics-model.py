@@ -58,15 +58,10 @@ def python_expect(data):
             return (e.start, 0)
         return (e.start, e.end - e.start)
 
-def rust_expect(data):
-    out = subprocess.run([str(a.rust)], input=data.hex() + "\n", text=True,
-                         capture_output=True, check=True).stdout.split()
-    return (int(out[0]), int(out[1]))
-
 payload = "".join("E\t" + data.hex() + "\n" for data in corpus)
 run = subprocess.run([str(a.adapter)], input=payload, text=True,
                      capture_output=True, timeout=600)
-if run.returncode:
+if run.returncode or run.stderr:
     sys.exit("adapter failed: " + run.stdout + run.stderr)
 rows = [line.split("\t") for line in run.stdout.splitlines()]
 if len(rows) != len(corpus):
@@ -77,6 +72,8 @@ if a.rust:
     rust_payload = "".join(data.hex() + "\n" for data in corpus)
     rust_run = subprocess.run([str(a.rust)], input=rust_payload, text=True,
                               capture_output=True, timeout=600, check=True)
+    if rust_run.stderr:
+        sys.exit("rust oracle wrote stderr: " + rust_run.stderr)
     rust_rows = [line.split("\t") for line in rust_run.stdout.splitlines()]
     if len(rust_rows) != len(corpus):
         sys.exit(f"rust oracle returned {len(rust_rows)} rows")

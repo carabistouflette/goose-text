@@ -31,9 +31,13 @@ compiler, reproduce the optional comparison without downloading any crates:
 
 ```sh
 mkdir -p .build
-rustc -O tests/diagnostics_oracle.rs -o .build/diagnostics-rust
+make rust-oracle
 make property RUST_ORACLE="$PWD/.build/diagnostics-rust"
+make sanitize RUST_ORACLE="$PWD/.build/diagnostics-rust"
 ```
+
+Local commands keep Rust optional. CI builds this helper with its installed
+Rust compiler and uses it alongside Python in property and sanitizer checks.
 
 The Python oracle rejects any mismatch, even a single one.
 `tests/diagnostics-model-check.py` verifies that behavior using a proxy which
@@ -61,7 +65,7 @@ a 64 KiB input cap and both time/run ceilings. Logs and crashes stay in
 `.build/fuzz/`. The default `make fuzz` limits are 30 seconds and 100,000 runs;
 the longer command above stops at whichever ceiling is reached first.
 
-`make mutation` checks sixteen selected codec and diagnostic mistakes. Unmodified controls must
+`make mutation` checks nineteen selected codec and diagnostic mistakes. Unmodified controls must
 pass; every mutant must compile, then fail an executed test. Compiler failures
 do not count as detection. Generated sources and logs stay in `.build/mutation/`.
 These checks demonstrate specific test behavior, not coverage of every bug.

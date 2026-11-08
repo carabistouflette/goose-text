@@ -41,6 +41,9 @@ mutants = [
     ("detail_drops_surrogate_bound", "api", [(
         "    if lead == 0xe0 { lo = 0xa0; }\n    if lead == 0xed { hi = 0x9f; }",
         "    if lead == 0xe0 { lo = 0xa0; }")]),
+    ("detail_drops_e0_bound", "api", [("\n    if lead == 0xe0 { lo = 0xa0; }", "")]),
+    ("detail_drops_f0_bound", "api", [("\n    if lead == 0xf0 { lo = 0x90; }", "")]),
+    ("detail_drops_f4_bound", "api", [("\n    if lead == 0xf4 { hi = 0x8f; }", "")]),
     ("detail_drops_first_continuation_bound", "api", [(
         "let low:  u8 = if i == 1 { lo } else { 0x80 };",
         "let low:  u8 = 0x80;")]),

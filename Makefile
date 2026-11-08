@@ -3,8 +3,9 @@ CC ?= gcc
 SANITIZER_CC ?= gcc
 BENCH_ITERATIONS ?= 1000
 RUST_ORACLE ?=
+RUSTC ?= rustc
 .NOTPARALLEL:
-.PHONY: setup format check test property security sanitize bench
+.PHONY: setup format check test property security sanitize bench rust-oracle
 setup:
 	./scripts/setup-goose.sh
 format:
@@ -52,6 +53,9 @@ property:
 	"$(GOOSE)" build tests/diagnostics.goose --cc "$(CC)" --debug --no-bce -o .build/diagnostics-debug
 	python3 tests/diagnostics-model.py .build/diagnostics-debug $(if $(RUST_ORACLE),--rust $(RUST_ORACLE),)
 security: property
+rust-oracle:
+	mkdir -p .build
+	"$(RUSTC)" -O tests/diagnostics_oracle.rs -o .build/diagnostics-rust
 sanitize:
 	mkdir -p .build
 	SANITIZER_CC="$(SANITIZER_CC)" "$(GOOSE)" build tests/api.goose --cc "$(abspath scripts/sanitizer-cc.sh)" --standalone --debug --no-bce -o .build/api-sanitize
@@ -62,7 +66,7 @@ sanitize:
 	SANITIZER_CC="$(SANITIZER_CC)" "$(GOOSE)" build tests/encoding.goose --cc "$(abspath scripts/sanitizer-cc.sh)" --standalone -O2 --no-bce -o .build/encoding-sanitize
 	ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1 python3 tests/encode-model.py ./.build/encoding-sanitize
 	SANITIZER_CC="$(SANITIZER_CC)" "$(GOOSE)" build tests/diagnostics.goose --cc "$(abspath scripts/sanitizer-cc.sh)" --standalone -O2 --no-bce -o .build/diagnostics-sanitize
-	ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1 python3 tests/diagnostics-model.py .build/diagnostics-sanitize
+	ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1 python3 tests/diagnostics-model.py .build/diagnostics-sanitize $(if $(RUST_ORACLE),--rust $(RUST_ORACLE),)
 bench:
 	mkdir -p .build
 	"$(GOOSE)" build bench/bench.goose --cc "$(CC)" -O2 -o .build/bench
