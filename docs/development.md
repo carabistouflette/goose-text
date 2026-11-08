@@ -26,6 +26,19 @@ Rust's `std::str::Utf8Error::error_len()`; the binary reads one hex input per
 line and prints `offset<TAB>length`, with `0` for `None`. The Rust oracle is
 optional because the repository does not vendor a Rust toolchain.
 
+Its source is retained in `tests/diagnostics_oracle.rs`. With an existing Rust
+compiler, reproduce the optional comparison without downloading any crates:
+
+```sh
+mkdir -p .build
+rustc -O tests/diagnostics_oracle.rs -o .build/diagnostics-rust
+make property RUST_ORACLE="$PWD/.build/diagnostics-rust"
+```
+
+The Python oracle rejects any mismatch, even a single one.
+`tests/diagnostics-model-check.py` verifies that behavior using a proxy which
+changes exactly one result from the real Goose adapter.
+
 For changes to validation, decoding, encoding or the compiler pin, also run:
 
 ```sh
@@ -48,7 +61,7 @@ a 64 KiB input cap and both time/run ceilings. Logs and crashes stay in
 `.build/fuzz/`. The default `make fuzz` limits are 30 seconds and 100,000 runs;
 the longer command above stops at whichever ceiling is reached first.
 
-`make mutation` checks eleven selected codec mistakes. Unmodified controls must
+`make mutation` checks sixteen selected codec and diagnostic mistakes. Unmodified controls must
 pass; every mutant must compile, then fail an executed test. Compiler failures
 do not count as detection. Generated sources and logs stay in `.build/mutation/`.
 These checks demonstrate specific test behavior, not coverage of every bug.

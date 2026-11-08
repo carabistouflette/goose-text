@@ -96,5 +96,8 @@ for index, data in enumerate(corpus):
     if failures > 20:
         sys.exit("too many mismatches")
 
+if failures:
+    sys.exit(f"{failures} diagnostic mismatches")
+
 oracles = "Python strict codec" + (" and Rust std" if rust_rows else "")
 print(f"Structured diagnostic matches {oracles} on {len(corpus)} inputs")

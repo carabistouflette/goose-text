@@ -17,6 +17,7 @@ check:
 	"$(GOOSE)" check tests/oracle.goose
 	"$(GOOSE)" check tests/fuzz.goose
 	"$(GOOSE)" check tests/diagnostics.goose
+	python3 -m py_compile tests/diagnostics-model.py tests/diagnostics-model-check.py
 	"$(GOOSE)" check examples/utf8.goose
 	"$(GOOSE)" check examples/diagnostics.goose
 	"$(GOOSE)" check bench/bench.goose
@@ -47,6 +48,7 @@ property:
 	python3 tests/encode-model.py ./.build/encoding-debug
 	"$(GOOSE)" build tests/diagnostics.goose --cc "$(CC)" -O2 -o .build/diagnostics
 	python3 tests/diagnostics-model.py .build/diagnostics $(if $(RUST_ORACLE),--rust $(RUST_ORACLE),)
+	python3 tests/diagnostics-model-check.py .build/diagnostics
 	"$(GOOSE)" build tests/diagnostics.goose --cc "$(CC)" --debug --no-bce -o .build/diagnostics-debug
 	python3 tests/diagnostics-model.py .build/diagnostics-debug $(if $(RUST_ORACLE),--rust $(RUST_ORACLE),)
 security: property

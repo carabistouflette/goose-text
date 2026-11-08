@@ -151,5 +151,17 @@ repair loop terminates and always yields valid UTF-8.
 Limits of this evidence: no external implementation was benchmarked, so no
 performance claim is made for the new function; it adds one call to
 `validate_utf8` plus at most four byte loads on the failure path and nothing on
-the success path. The Rust oracle is a local, uncommitted helper; the repository
-does not vendor a Rust toolchain, so CI runs the Python oracle only.
+the success path. The initial Rust oracle was a local helper; its equivalent
+source is now retained in `tests/diagnostics_oracle.rs` for reproduction without
+Cargo dependencies. The repository does not vendor a Rust toolchain, so CI
+runs the Python oracle by default.
+
+### Oracle failure-control correction
+
+Coordinator review found that the initial Python runner printed up to twenty
+mismatches but still returned success. A proxy changing only the empty-input
+diagnostic reproduced this: the original runner exited 0, while the corrected
+runner exits 1. The runner now fails on any mismatch and the property target
+includes that negative control. Earlier positive logs are superseded by the
+coordinator's rerun with the corrected runner; no library API changed in this
+test correction.
